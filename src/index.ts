@@ -1,52 +1,66 @@
-const user: {
-    readonly firstName: string;
-    readonly age?: number;
-    [id: string]: string | number | undefined;
-} = {
-    firstName: 'Ihor',
-    age: 35
+// function fn(_a: any) {
+//
+// }
+//
+// let a = fn('1');
+// let n = fn({a: 1})
+
+// interface, type, class, fn
+// interface IMale { male: boolean }
+// interface IAccount<INFO extends IMale, ID = string> {
+//     id: ID;
+//     firstName: string,
+//     info: INFO
+// }
+//
+// let user: IAccount<IMale> = {
+//     id: 'asdasd',
+//     firstName: 'Ihor',
+//     info: {
+//         male: true
+//     }
+// }
+//
+// let admin: IAccount<IMale & {subjects: string[] }, number> = {
+//     id: 12,
+//     firstName: 'Vlad',
+//     info: {
+//         male: true,
+//         subjects: ['ts', 'react', 'angular']
+//     }
+// }
+//
+// let arr: Array<>
+
+interface IUser {
+    name: string;
+    age: number;
 }
-//
-// user.age = 21;
-//
-// let keys: keyof typeof user = 'firstName';
-//
-// let hashUserMap: {
-//     [id: string]: typeof user
-// }
-//
-// let users: typeof hashUserMap = {
-//     'a12312asdasda': user,
-//     'a1231asd123': user,
-//     'asda124af': user,
-//     '1231zxvasda': user,
-// }
-//
-// let a: Map<string, typeof user> = new Map<string, typeof user>()
+
+interface IProduct {
+    name: string;
+    price: number;
+}
+
+interface ICartProduct extends IProduct {
+    count: number;
+}
+
+interface IState {
+    user: IUser,
+    products: IProduct[],
+    cart: ICartProduct[]
+}
+
+const state: IState = {
+    user: {name: 'Ihor', age: 35},
+    products: [{name: 'IPhone XR', price: 50}],
+    cart: [{name: 'IPhone XR', price: 50, count: 10}],
+}
+
+type Select<T> = <U extends keyof T>(state: T, field: U) => T[U]
 
 
-// let arr: readonly {
-//     readonly firstName: string;
-//     readonly age?: number;
-//     [id: string]: string | number | undefined;
-// }[] = [user];
-//
-// arr[100] = 1;
-// arr.push(1);
-//
-// let tupleArr: [id: string, account: typeof user] = ['123sdasda1241', user];
-//
-// tupleArr[100] = user;
-// tupleArr.push(user);
+const select: Select<IState> = (state, field) => state[field];
 
-// let a = 'Ihor';
-// let myName: typeof a = 'Vlad';
-
-const  x = 10 as const;
-
-let arr = [1, 2, 3]
-const acc = {firstName: 'Ihor', content: [1, 2, 3]} as const;
-
-acc.firstName = 'vlad';
-acc.content = [];
-acc.content.push(1);
+const user: IUser = select(state, 'user')

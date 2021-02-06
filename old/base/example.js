@@ -4,7 +4,7 @@ function deliveryMethod() {
     return 'overnight';
 }
 function shipWeight() {
-    var el = document.getElementById('weight');
+    const el = document.getElementById('weight');
     if (!el) {
         return 0;
     }
@@ -12,13 +12,13 @@ function shipWeight() {
 }
 function sendUpdates(emailAddr) {
     function sendEmail(addr) {
-        console.log("Shipping to " + addr + " via " + (deliveryMethod() || 'standard') + " delivery");
+        console.log(`Shipping to ${addr} via ${deliveryMethod() || 'standard'} delivery`);
         if (shipWeight() > 100) {
             console.log('WARNING: Oversize package');
         }
     }
     if (Array.isArray(emailAddr)) {
-        emailAddr.forEach(function (val, _idx) {
+        emailAddr.forEach((val, _idx) => {
             sendEmail(val.trim());
         });
     }

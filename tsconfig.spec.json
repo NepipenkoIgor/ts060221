@@ -1,9 +1,9 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "target": "esnext"
+    "target": "esnext",
+    "types": [
+      "jasmine"
+    ]
   },
-  "include": [
-    "./old/**/*.ts"
-  ]
 }

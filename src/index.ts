@@ -1,124 +1,45 @@
-interface IX {
-    x: number;
-}
+import { CheckTypeInRuntime, Debounce, LogInputValue, SavePersistence } from './decorators';
+import { RangeLimit, Validate } from "./utils";
 
-interface IY {
-    y: number;
-}
+class SearchComponent {
 
-class BasePoint implements IX {
-
-    #p: number = 1;
+    @CheckTypeInRuntime
+    @SavePersistence
+    public initialValue!: string;
 
     public constructor(
-        public  x: number,
-        protected readonly y: number,
-        private readonly z: number,
+        private readonly inputElement: HTMLInputElement
     ) {
+        this.inputElement.addEventListener('input', this.onSearch.bind(this))
+        console.log('send to server', this.initialValue)
     }
 
-    public sum() {
-        return this.x + this.y + this.z + this.#p;
-    }
-
-}
-
-
-class Singleton {
-    private static instance: Singleton
-
-    private constructor() {
-    }
-
-    public static getInstance() {
-        if (!Singleton.instance) {
-            Singleton.instance = new Singleton();
-        }
-        return Singleton.instance;
+    @Debounce(300)
+    @LogInputValue
+    private onSearch(_e: Event): void {
+        this.initialValue = (_e.target as HTMLInputElement).value;
     }
 }
 
+const inputElement = document.querySelector('input') as HTMLInputElement;
+const searchWidget = new SearchComponent(inputElement);
 
-const inst = Singleton.getInstance();
-const inst1 = Singleton.getInstance();
-const inst2 = Singleton.getInstance();
-const inst3 = Singleton.getInstance();
+setTimeout(() => {
+    (searchWidget.initialValue as any) = 1;
+}, 5000)
 
-console.log(inst === inst3)
 
-type Constructable = new (...args: any[]) => any;
-
-function Timestamped<BaseClass extends Constructable>(BC: BaseClass) {
-    return class extends BC {
-        public timestamp = new Date();
+class Calculator {
+    public updatePercentage(
+        oldValue: number,
+        @RangeLimit(30, 70) newValue: number
+    ) {
+        console.log(oldValue, newValue)
     }
 }
 
-function Tagged<BaseClass extends Constructable>(BC: BaseClass) {
-    return class extends BC {
-        public tags = ['TS', 'JS'];
-    }
-}
-
-
-class Point extends Tagged(Timestamped(BasePoint)) {
-    constructor(x: number,
-                y: number,
-                z: number,) {
-        super(x, y, z);
-    }
-}
-
-
-let p = new Point(1, 1, 1);
-
-
-abstract class AbstractControl<Model> {
-    public abstract model: Model;
-
-    public abstract getValue(): Model;
-
-    public onFocus() {
-
-    }
-
-    public onBlur() {
-
-    }
-}
-
-abstract class AbstractControlWithSet<T> extends AbstractControl<T> {
-    public abstract setValue(v: T): void;
-}
-
-interface IDropDownItem {
-    text: string;
-    value: string;
-}
-
-class MHDropDown extends AbstractControlWithSet<IDropDownItem[]> {
-    public model: IDropDownItem[] = [];
-
-    public getValue(): IDropDownItem[] {
-        return this.model;
-    }
-
-    public setValue(v: IDropDownItem[]) {
-        this.model = v;
-    }
-}
-
-class MHInput extends AbstractControlWithSet<string> {
-    public model: string = ''
-
-    public getValue(): string {
-        return this.model;
-    }
-
-    public setValue(v: string) {
-        this.model = v;
-    }
-}
-
-
-const dropDownElement = new MHDropDown()
+const calc = new Calculator();
+calc.updatePercentage(20, 40);
+setTimeout(() => {
+    calc.updatePercentage(20, 80);
+}, 5000)

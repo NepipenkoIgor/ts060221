@@ -1,66 +1,62 @@
-// function fn(_a: any) {
-//
-// }
-//
-// let a = fn('1');
-// let n = fn({a: 1})
-
-// interface, type, class, fn
-// interface IMale { male: boolean }
-// interface IAccount<INFO extends IMale, ID = string> {
-//     id: ID;
-//     firstName: string,
-//     info: INFO
-// }
-//
-// let user: IAccount<IMale> = {
-//     id: 'asdasd',
-//     firstName: 'Ihor',
-//     info: {
-//         male: true
-//     }
-// }
-//
-// let admin: IAccount<IMale & {subjects: string[] }, number> = {
-//     id: 12,
-//     firstName: 'Vlad',
-//     info: {
-//         male: true,
-//         subjects: ['ts', 'react', 'angular']
-//     }
-// }
-//
-// let arr: Array<>
-
-interface IUser {
-    name: string;
-    age: number;
+type NotReadonlyAndOptional<T> = {
+    -readonly [P in keyof T]?: T[P]
+}
+type User = {
+    readonly firstName: string;
+    readonly age: number;
+    info: { male: boolean },
+    subject: string[]
 }
 
-interface IProduct {
-    name: string;
-    price: number;
+let nu: NotReadonlyAndOptional<User> = {
+    age: 35
+}
+nu.age = 21;
+// P -> a | b  -> Obj['a'] = number
+
+//   Obj['b'] =  string
+
+
+type RemoveByType<T, E> = {
+    [P in keyof T]: E extends T[P] ? never : P
+}[keyof T]
+
+
+const p: RemoveByType<User, { male: boolean }> = 'subject'; // firstName |  age | subject
+
+
+type CapitalizedKeysAndGetter<T> = {
+    [K in keyof T as `get${Capitalize<string & K>}`]: () => T[K]
 }
 
-interface ICartProduct extends IProduct {
-    count: number;
+let getUser: CapitalizedKeysAndGetter<User> = {
+    getFirstName: () => 'Ihor',
+    getAge: () => 35,
+    getInfo: () => ({male: true}),
+    getSubject: () => ['TS', 'JS']
 }
 
-interface IState {
-    user: IUser,
-    products: IProduct[],
-    cart: ICartProduct[]
+
+type RemoveFieldOptional<T, E> = {
+    [K in keyof T as Exclude<K, E>]?: T[K]
 }
 
-const state: IState = {
-    user: {name: 'Ihor', age: 35},
-    products: [{name: 'IPhone XR', price: 50}],
-    cart: [{name: 'IPhone XR', price: 50, count: 10}],
+type RemoveField<T, E> = {
+    readonly [K in keyof T as Exclude<K, E>]?: T[K]
+}
+type PartialOpt<T, U, C> = RemoveFieldOptional<T, U> & RemoveField<T, C>
+const u1: PartialOpt<User, 'firstName' | 'subject', 'info' | 'age'> = {
+    firstName: 'Ihor',
+    subject: ['TS'],
 }
 
-type Select<T> = <U extends keyof T>(state: T, field: U) => T[U]
 
+type SomeType<T> = T extends Array<infer U> ? SomeType<U> : T;
 
-const select: Select<IState> = (state, field) => state[field];
+function deepFlatten<T extends readonly unknown[]>(_x: T): SomeType<T>[] {
+    throw 'not implemented'
+}
 
-const user: IUser = select(state, 'user')
+const arr1: number[] = deepFlatten([1, 2, 3]);
+const arr2: number[] = deepFlatten([[1], [2, 3]]);
+const arr3: number[] = deepFlatten([[1, [3, 3]], [2, 3]]);
